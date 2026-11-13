@@ -695,7 +695,7 @@
 			Type: "ButtTouch",
 			Duration: 9000,
 			Expression: {
-				Mouth: [{ Expression: "Frown", Duration: 9000 }],
+				Mouth: [{ Expression: "null", Duration: 9000 }],
 				Eyes: [
 					{ Expression: "Daydream", Duration: 2500 },
 					{ Expression: "Surprised", Duration: 3500 },
@@ -704,7 +704,7 @@
 					{ Expression: "Daydream", Duration: 2500 },
 					{ Expression: "Surprised", Duration: 3500 },
 				],
-				Eyebrows: [{ Expression: null, Duration: 9000 }],
+				Eyebrows: [{ Expression: soft, Duration: 9000 }],
 				Blush: [{ ExpressionModifier: 1, Duration: 7500 }],
 			},
 		},
