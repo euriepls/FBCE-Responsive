@@ -49,6 +49,19 @@
 	}
 
 	await waitFor(() => !!w.Player?.Name && !!w.bce_initializeDefaultExpression);
+	// set w.bce_EventExpressions and w.bce_ActivityTriggers first (move the waitFor below them)
+
+await waitFor(() => !!w.Player?.Name && (!!w.bce_initializeDefaultExpression || !!w.Liko?.LCE));
+
+	
+if (w.Liko?.LCE && !w.bce_initializeDefaultExpression) {
+	try {
+		Object.assign(w.Liko.LCE.expressionData, w.bce_EventExpressions);
+		console.log("[FBCE Nabi] merged into LCE.expressionData");
+	} catch (e) {
+		console.warn("[FBCE Nabi] LCE merge failed:", e);
+	}
+}
 
 	// NOTICE: You may delete the ArousalExpressionStages or EventExpressions sections if you don't want to use them, and leave only one. The other will use defaults. EventExpressions must contain keys for all events that ActivityTriggers trigger.
 
