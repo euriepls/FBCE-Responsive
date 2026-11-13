@@ -41,16 +41,6 @@
 
 	const w = window;
 
-	if (typeof ChatRoomCharacter === "undefined") {
-		console.warn(
-			"Bondage Club not detected. Skipping BCE customizer initialization."
-		);
-		return;
-	}
-
-	await waitFor(() => !!w.Player?.Name && !!w.bce_initializeDefaultExpression);
-	// set w.bce_EventExpressions and w.bce_ActivityTriggers first (move the waitFor below them)
-
 await waitFor(() => !!w.Player?.Name && (!!w.bce_initializeDefaultExpression || !!w.Liko?.LCE));
 
 	// set w.bce_EventExpressions and w.bce_ActivityTriggers first (move the waitFor below them)
