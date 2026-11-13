@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name FBCE Nabi ver 2.3
+// @name FBCE Nabi ver 2.4 (WCE + LCE)
 // @namespace https://www.bondageprojects.com/
-// @version 0.1
-// @description Customize the expressions used by FBC
+// @version 0.2
+// @description Customize the expressions used by FBC / WCE, with an adapter for Liko's Club Extension (LCE)
 // @author Sidious
 // @match https://bondageprojects.elementfx.com/*
 // @match https://www.bondageprojects.elementfx.com/*
@@ -40,6 +40,7 @@
 	"use strict";
 
 	const w = window;
+	const LOG = "[FBCE Nabi]";
 
 	if (typeof ChatRoomCharacter === "undefined") {
 		console.warn(
@@ -48,21 +49,13 @@
 		return;
 	}
 
-	await waitFor(() => !!w.Player?.Name && !!w.bce_initializeDefaultExpression);
+	/* ------------------------------------------------------------------ */
+	/*  CONFIG DATA (same content as the original script)                  */
+	/* ------------------------------------------------------------------ */
 
 	// NOTICE: You may delete the ArousalExpressionStages or EventExpressions sections if you don't want to use them, and leave only one. The other will use defaults. EventExpressions must contain keys for all events that ActivityTriggers trigger.
 
-	/**
-	 * These are all the different stages your face goes through as your arousal increases. The map should always contain Blush, Eyebrows, Fluids, Eyes, Eyes2, Mouth and Pussy.
-	 * The order of the expressions within each facial component is important to keep in a descending order.
-	 *
-	 * Each expression comes with Expression (refer to the expressions cheatsheet at https://gitlab.com/Sidiousious/bce/-/blob/main/README.md for valid values), and Limit, which has to be between 0 and 100 inclusively.
-	 * null means the default expression will be used (e.g. no blush, no fluid, etc.)
-	 *
-	 * Limit dictates above which the expression will be used.
-	 */
-
-    w.bce_ArousalExpressionStages = {/*
+	const ArousalExpressionStages = {/*
 		Blush: [
 			{ Expression: "Extreme", Limit: 100 },
 			{ Expression: "VeryHigh", Limit: 90 },
@@ -114,31 +107,10 @@
 	*/};
 
 	/**
-	 * These are the various expressions that BCE can trigger. Most of these are mapped to chat messages using bce_ChatTriggers below.
-	 * Special events that are not triggered from chat:
-	 * - PostOrgasm: this is triggered when the player begins recovering from orgasm.
-	 *
-	 * Data model:
-	 * - Type: name for the event, should match the key in the object
-	 * - Duration: how long the expression lasts, in milliseconds, or -1 for indefinite
-	 * - Priority: how important the expression is, higher is more important. Expressions with the same or lower priority are cut short when another expression is triggered.
-	 * - Expression: a map of face component (Blush, Eyes, Eyes2, Mouth, Fluids, Eyebrows, Pussy) to the expression timeline.
-	 * - Poses: the pose timeline.
-	 *
-	 * The expression timeline is a list of expressions, which are objects with the following properties:
-	 * - Expression: the expression type, e.g. "DroolSides". Refer to the expressions cheatsheet at https://gitlab.com/Sidiousious/bce/-/blob/main/README.md
-	 * - Duration: how long the expression lasts, in milliseconds, or -1 for indefinite
-	 * - Priority: how important the expression is, higher is more important. Expressions with the same or lower priority are cut short when another expression is triggered.
-	 * - ExpressionModifier: a number from -4 to +4 that modifies the intensity of the expression. This is only valid for Blush. Use only Expression or ExpressionModifier, not both.
-	 * - Skip: if true, the expression will be skipped for the duration.
-	 *
-	 * The pose timeline is a list of poses, which are objects with the following properties:
-	 * - Pose: the complete pose array, refer to https://github.com/Ben987/Bondage-College/blob/2cc8eabd51c075cb1e88c5ab36317bfc51709470/BondageClub/Assets/Female3DCG/Female3DCG.js#L5711 for a complete list. Max one per category.
-	 * - Duration: how long the pose lasts, in milliseconds, or -1 for indefinite
-	 * - Priority: how important the pose is, higher is more important. Poses with the same or lower priority are cut short when another pose is triggered.
+	 * Event expressions. See the original FBC/WCE documentation for the data model:
+	 * - Type, Duration, Priority, Expression (per face component timelines), Poses (pose timelines)
 	 */
-
-	w.bce_EventExpressions = {
+	const EventExpressions = {
 		PostOrgasm: {
 			Type: "PostOrgasm",
 			Duration: 18500,
@@ -158,7 +130,7 @@
 				Mouth: [
 					{ Expression: "Ahegao", Duration: 4000 },
 					{ Expression: "Moan", Duration: 4000 },
-                    { Expression: "HalfOpen", Duration: 3000 },
+					{ Expression: "HalfOpen", Duration: 3000 },
 					{ Expression: "LipBite", Duration: 7000,},
 				],
 				Fluids: [
@@ -345,25 +317,25 @@
 			Duration: -1,
 			Priority: 400,
 			Expression: {
-                Blush: [
+				Blush: [
 					{ ExpressionModifier: 1, Duration: -1 },
 				],
 				Eyes: [
-                    { Expression: "LewdHeart", Duration: 2800 },
-                    { Expression: "Closed", Duration: 200 },
+					{ Expression: "LewdHeart", Duration: 2800 },
+					{ Expression: "Closed", Duration: 200 },
 					{ Expression: "Heart", Duration: 7000 },
-                    //{ Expression: "Closed", Duration: 200 },
+					//{ Expression: "Closed", Duration: 200 },
 					{ Expression: "Heart", Duration: -1 },
 				],
 				Eyes2: [
-                    { Expression: "LewdHeart", Duration: 500 },
+					{ Expression: "LewdHeart", Duration: 500 },
 					{ Expression: "Closed", Duration: 9500 },
 					{ Expression: "Heart", Duration: -1 },
 				],
 				Mouth: [
-                    { Expression: "LipBite", Duration: 5000 },
+					{ Expression: "LipBite", Duration: 5000 },
 					//{ Expression: "LipBite", Duration: 3000 },
-                    { Expression: "Frown", Duration: -1 },
+					{ Expression: "Frown", Duration: -1 },
 				],
 				Fluids: [
 					{ Expression: "DroolLow", Duration: -1, },
@@ -740,7 +712,7 @@
 			Type: "GentleTouch",
 			Duration: -1,
 			Expression: {
-				Mouth: [{ Expression: "Frown", Duration: -1 }],
+				// (the original had a duplicate "Mouth" key here; the last one won, so only that one is kept)
 				Mouth: [{ Expression: "LipBite", Duration: 12000 }],
 				Eyes: [
 					{ Expression: "Closed", Duration: 2000 },
@@ -844,356 +816,64 @@
 			},
 		},
 	};
+
 	/**
-	 * This list maps incoming messages to expressions.
-	 *
-	 * - Event: The event to trigger.
-	 * - Type: The type of the message (Activity, Action, Emote, etc.)
-	 * - Matchers: a list of matchers, one of which must match for the expression to be triggered.
-	 *
-	 * In matchers:
-	 * - Tester: a regular expression that must match the Content of the message. For Emote this is the message sent by the user. For Activity/Action this is the label used by the game (e.g. "ChatOther-ItemArms-Pinch" or "ActionActivityShockItem")
-	 * - Criteria: a list of additional criteria that must be met for the expression to be triggered.
-	 *
-	 * In criteria:
-	 * - TargetIsPlayer: if present and true, the expression will only be triggered if the target is the player.
-	 * - SenderIsPlayer: if present and true, the expression will only be triggered if the sender is the player.
+	 * Maps incoming messages to expressions (Event / Type / Matchers / Criteria).
 	 */
-	w.bce_ActivityTriggers = [
-		{
-			Event: "Blush",
-			Type: "Activity",
-			Matchers: [
-				{
-					Tester: /^ChatOther-ItemMouth-PoliteKiss$/u,
-				},
-			],
-		},
-		{
-			Event: "Stretch",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^stretches($| her)/u,
-				},
-			],
-		},
-		{
-			Event: "JumpingJacks",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^does jumping[ -]?jacks/u,
-				},
-			],
-		},
-		{
-			Event: "AllFours",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(gets on all fours|starts crawling)/u,
-				},
-			],
-		},
-		{
-			Event: "SpreadKnees",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^spreads(( her legs)? on)? her knees/u,
-				},
-			],
-		},
-		{
-			Event: "SpreadLegs",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^spreads her legs/u,
-				},
-			],
-		},
-		{
-			Event: "Handstand",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(does a handstand|stands on her hands)/u,
-				},
-			],
-		},
-		{
-			Event: "Hogtied",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^lies( down)? on (the floor|her (tummy|stomach))/u,
-				},
-			],
-		},
-		{
-			Event: "Blush",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^blushes/u,
-				},
-			],
-		},
-		{
-			Event: "Chuckle",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^chuckles/u,
-				},
-			],
-		},
-		{
-			Event: "Laugh",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^laughs/u,
-				},
-			],
-		},
-		{
-			Event: "Giggle",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^giggles/u,
-				},
-			],
-		},
-		{
-			Event: "Smirk",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(smirk(s|ing)|.*with a smirk)/u,
-				},
-			],
-		},
-		{
-			Event: "Wink",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^winks/u,
-				},
-			],
-		},
-		{
-			Event: "Pout",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^pouts/u,
-				},
-			],
-		},
-		{
-			Event: "Blink",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^blinks/u,
-				},
-			],
-		},
-		{
-			Event: "Frown",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^frowns/u,
-				},
-			],
-		},
-		{
-			Event: "Grin",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(grins|is grinning)/u,
-				},
-			],
-		},
+	const ActivityTriggers = [
+		{ Event: "Blush", Type: "Activity", Matchers: [{ Tester: /^ChatOther-ItemMouth-PoliteKiss$/u }] },
+		{ Event: "Stretch", Type: "Emote", Matchers: [{ Tester: /^stretches($| her)/u }] },
+		{ Event: "JumpingJacks", Type: "Emote", Matchers: [{ Tester: /^does jumping[ -]?jacks/u }] },
+		{ Event: "AllFours", Type: "Emote", Matchers: [{ Tester: /^(gets on all fours|starts crawling)/u }] },
+		{ Event: "SpreadKnees", Type: "Emote", Matchers: [{ Tester: /^spreads(( her legs)? on)? her knees/u }] },
+		{ Event: "SpreadLegs", Type: "Emote", Matchers: [{ Tester: /^spreads her legs/u }] },
+		{ Event: "Handstand", Type: "Emote", Matchers: [{ Tester: /^(does a handstand|stands on her hands)/u }] },
+		{ Event: "Hogtied", Type: "Emote", Matchers: [{ Tester: /^lies( down)? on (the floor|her (tummy|stomach))/u }] },
+		{ Event: "Blush", Type: "Emote", Matchers: [{ Tester: /^blushes/u }] },
+		{ Event: "Chuckle", Type: "Emote", Matchers: [{ Tester: /^chuckles/u }] },
+		{ Event: "Laugh", Type: "Emote", Matchers: [{ Tester: /^laughs/u }] },
+		{ Event: "Giggle", Type: "Emote", Matchers: [{ Tester: /^giggles/u }] },
+		{ Event: "Smirk", Type: "Emote", Matchers: [{ Tester: /^(smirk(s|ing)|.*with a smirk)/u }] },
+		{ Event: "Wink", Type: "Emote", Matchers: [{ Tester: /^winks/u }] },
+		{ Event: "Pout", Type: "Emote", Matchers: [{ Tester: /^pouts/u }] },
+		{ Event: "Blink", Type: "Emote", Matchers: [{ Tester: /^blinks/u }] },
+		{ Event: "Frown", Type: "Emote", Matchers: [{ Tester: /^frowns/u }] },
+		{ Event: "Grin", Type: "Emote", Matchers: [{ Tester: /^(grins|is grinning)/u }] },
 		{
 			Event: "Confused",
 			Type: "Emote",
-			Matchers: [
-				{
-					Tester:
-						/^((seems|looks) (confused|curious|suspicious)|raises an eyebrow)/u,
-				},
-			],
+			Matchers: [{ Tester: /^((seems|looks) (confused|curious|suspicious)|raises an eyebrow)/u }],
 		},
-		{
-			Event: "CloseMouth",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^closes her mouth/u,
-				},
-			],
-		},
-		{
-			Event: "OpenMouth",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^opens her mouth/u,
-				},
-			],
-		},
-		{
-			Event: "Happy",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(looks|seems|is|gets|smiles) happ(il)?y/u,
-				},
-			],
-		},
-		{
-			Event: "Smile",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^smiles/u,
-				},
-			],
-		},
-		{
-			Event: "Distressed",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(looks|seems|is|gets) distressed/u,
-				},
-			],
-		},
-		{
-			Event: "Sad",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(looks|seems|is|gets) sad/u,
-				},
-			],
-		},
-		{
-			Event: "Worried",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(looks|seems|is|gets) (worried|surprised)/u,
-				},
-			],
-		},
-		{
-			Event: "BareTeeth",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(bares her teeth|snarls)/u,
-				},
-			],
-		},
-		{
-			Event: "Angry",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(looks angr(il)?y|(gets|is|seems) angry)/u,
-				},
-			],
-		},
+		{ Event: "CloseMouth", Type: "Emote", Matchers: [{ Tester: /^closes her mouth/u }] },
+		{ Event: "OpenMouth", Type: "Emote", Matchers: [{ Tester: /^opens her mouth/u }] },
+		{ Event: "Happy", Type: "Emote", Matchers: [{ Tester: /^(looks|seems|is|gets|smiles) happ(il)?y/u }] },
+		{ Event: "Smile", Type: "Emote", Matchers: [{ Tester: /^smiles/u }] },
+		{ Event: "Distressed", Type: "Emote", Matchers: [{ Tester: /^(looks|seems|is|gets) distressed/u }] },
+		{ Event: "Sad", Type: "Emote", Matchers: [{ Tester: /^(looks|seems|is|gets) sad/u }] },
+		{ Event: "Worried", Type: "Emote", Matchers: [{ Tester: /^(looks|seems|is|gets) (worried|surprised)/u }] },
+		{ Event: "BareTeeth", Type: "Emote", Matchers: [{ Tester: /^(bares her teeth|snarls)/u }] },
+		{ Event: "Angry", Type: "Emote", Matchers: [{ Tester: /^(looks angr(il)?y|(gets|is|seems) angry)/u }] },
 		{
 			Event: "Glare",
 			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(glares|looks harshly|gives a (glare|harsh look))/u,
-				},
-			],
+			Matchers: [{ Tester: /^(glares|looks harshly|gives a (glare|harsh look))/u }],
 		},
-		{
-			Event: "OpenEyes",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^opens her eyes/u,
-				},
-			],
-		},
+		{ Event: "OpenEyes", Type: "Emote", Matchers: [{ Tester: /^opens her eyes/u }] },
 		{
 			Event: "NarrowEyes",
 			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^((squints|narrows) her eyes|narrowly opens her eyes)/u,
-				},
-			],
+			Matchers: [{ Tester: /^((squints|narrows) her eyes|narrowly opens her eyes)/u }],
 		},
-		{
-			Event: "CloseEyes",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^closes her eyes/u,
-				},
-			],
-		},
-		{
-			Event: "ResetBrows",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^lowers her eyebrows/u,
-				},
-			],
-		},
-		{
-			Event: "RaiseBrows",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^raises her eyebrows/u,
-				},
-			],
-		},
-		{
-			Event: "DroolSides",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^drools/u,
-				},
-			],
-		},
+		{ Event: "CloseEyes", Type: "Emote", Matchers: [{ Tester: /^closes her eyes/u }] },
+		{ Event: "ResetBrows", Type: "Emote", Matchers: [{ Tester: /^lowers her eyebrows/u }] },
+		{ Event: "RaiseBrows", Type: "Emote", Matchers: [{ Tester: /^raises her eyebrows/u }] },
+		{ Event: "DroolSides", Type: "Emote", Matchers: [{ Tester: /^drools/u }] },
 		{
 			Event: "Cry",
 			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^(starts to cry|sheds .* tears?|eyes( start( to)?)? leak)/u,
-				},
-			],
+			Matchers: [{ Tester: /^(starts to cry|sheds .* tears?|eyes( start( to)?)? leak)/u }],
 		},
-		{
-			Event: "Reset",
-			Type: "Emote",
-			Matchers: [
-				{
-					Tester: /^'s (expression|face) returns to normal/u,
-				},
-			],
-		},
+		{ Event: "Reset", Type: "Emote", Matchers: [{ Tester: /^'s (expression|face) returns to normal/u }] },
 		{
 			Event: "Shock",
 			Type: "Action",
@@ -1201,9 +881,7 @@
 				{
 					Tester:
 						/^(ActionActivityShockItem|FuturisticVibratorShockTrigger|FuturisticChastityBeltShock\w+|(TriggerShock|(ShockCollar|Collar(Auto)?ShockUnit|(LoveChastityBelt|SciFiPleasurePanties)Shock)Trigger)(1|2))$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
+					Criteria: { TargetIsPlayer: true },
 				},
 			],
 		},
@@ -1214,346 +892,250 @@
 				{
 					Tester:
 						/^(TriggerShock|(ShockCollar|Collar(Auto)?ShockUnit|(LoveChastityBelt|SciFiPleasurePanties)Shock)Trigger)0$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
+					Criteria: { TargetIsPlayer: true },
 				},
 			],
 		},
 		{
 			Event: "Hit",
 			Type: "Action",
-			Matchers: [
-				{
-					Tester: /^ActionActivitySpankItem$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-			],
+			Matchers: [{ Tester: /^ActionActivitySpankItem$/u, Criteria: { TargetIsPlayer: true } }],
 		},
 		{
 			Event: "Spank",
 			Type: "Activity",
 			Matchers: [
-				{
-					Tester: /^ChatOther-ItemButt-Spank$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-				{
-					Tester: /^ChatSelf-ItemButt-Spank$/u,
-				},
+				{ Tester: /^ChatOther-ItemButt-Spank$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-ItemButt-Spank$/u },
 			],
 		},
 		{
 			Event: "Hug",
 			Type: "Activity",
 			Matchers: [
-				{
-					Tester: /^ChatOther-.*-(SistersHug|LSCG_Hug|Cuddle)$/u,
-				},
-				{
-					Tester: /^ChatSelf-.*-(SistersHug|LSCG_Hug|Cuddle)$/u,
-				},
+				{ Tester: /^ChatOther-.*-(SistersHug|LSCG_Hug|Cuddle)$/u },
+				{ Tester: /^ChatSelf-.*-(SistersHug|LSCG_Hug|Cuddle)$/u },
 			],
 		},
 		{
 			Event: "Nuzzle",
 			Type: "Activity",
 			Matchers: [
-				{
-					Tester: /^ChatOther-.*-(Rub|LSCG_Nuzzle)$/u,
-				},
-				{
-					Tester: /^ChatSelf-.*-(Rub|LSCG_Nuzzle)$/u,
-				},
+				{ Tester: /^ChatOther-.*-(Rub|LSCG_Nuzzle)$/u },
+				{ Tester: /^ChatSelf-.*-(Rub|LSCG_Nuzzle)$/u },
 			],
 		},
 		{
 			Event: "Stimulated",
 			Type: "Action",
-			Matchers: [
-				{
-					Tester: /^ActionActivityMasturbateItem$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-			],
+			Matchers: [{ Tester: /^ActionActivityMasturbateItem$/u, Criteria: { TargetIsPlayer: true } }],
 		},
 		{
 			Event: "StimulatedLong",
 			Type: "Activity",
 			Matchers: [
-				{
-					Tester: /^ChatOther-.*-(Masturbate|Penetrate).*$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-				{
-					Tester: /^ChatSelf-.*-(Masturbate|Penetrate).*$/u,
-				},
+				{ Tester: /^ChatOther-.*-(Masturbate|Penetrate).*$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-.*-(Masturbate|Penetrate).*$/u },
 			],
 		},
-		{
-			Event: "KissOnLips",
-			Type: "Activity",
-			Matchers: [
-				{
-					Tester: /^ChatOther-ItemMouth-Kiss$/u,
-				},
-			],
-		},
+		{ Event: "KissOnLips", Type: "Activity", Matchers: [{ Tester: /^ChatOther-ItemMouth-Kiss$/u }] },
 		{
 			Event: "Kiss",
 			Type: "Activity",
-			Matchers: [
-				{
-					Tester: /^ChatOther-.*-Kiss$/u,
-					Criteria: {
-						SenderIsPlayer: true,
-					},
-				},
-			],
+			Matchers: [{ Tester: /^ChatOther-.*-Kiss$/u, Criteria: { SenderIsPlayer: true } }],
 		},
-		{
-			Event: "Disoriented",
-			Type: "Action",
-			Matchers: [
-				{
-					Tester: /^(KneelDown|StandUp)Fail$/u,
-				},
-			],
-		},
-		{
-			Event: "LipBite",
-			Type: "Activity",
-			Matchers: [
-				{
-					Tester: /^ChatSelf-ItemMouth-Bite$/u,
-				},
-			],
-		},
+		{ Event: "Disoriented", Type: "Action", Matchers: [{ Tester: /^(KneelDown|StandUp)Fail$/u }] },
+		{ Event: "LipBite", Type: "Activity", Matchers: [{ Tester: /^ChatSelf-ItemMouth-Bite$/u }] },
 		{
 			Event: "Lick",
 			Type: "Activity",
-			Matchers: [
-				{
-					Tester: /^ChatOther-.*-(Lick|MasturbateTongue)$/u,
-					Criteria: {
-						SenderIsPlayer: true,
-					},
-				},
-			],
+			Matchers: [{ Tester: /^ChatOther-.*-(Lick|MasturbateTongue)$/u, Criteria: { SenderIsPlayer: true } }],
 		},
 		{
 			Event: "DroolReset",
 			Type: "Activity",
 			Matchers: [
-				{
-					Tester: /^ChatOther-ItemMouth-Caress$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-				{
-					Tester: /^ChatSelf-ItemMouth-Caress$/u,
-				},
+				{ Tester: /^ChatOther-ItemMouth-Caress$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-ItemMouth-Caress$/u },
 			],
 		},
-		{
-			Event: "LongKiss",
-			Type: "Activity",
-			Matchers: [
-				{
-					Tester: /^ChatOther-ItemMouth-FrenchKiss$/u,
-				},
-			],
-		},
+		{ Event: "LongKiss", Type: "Activity", Matchers: [{ Tester: /^ChatOther-ItemMouth-FrenchKiss$/u }] },
 		{
 			Event: "Boop",
 			Type: "Activity",
 			Matchers: [
-				{
-					Tester: /^ChatOther-ItemNose-Pet$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-				{
-					Tester: /^ChatSelf-ItemNose-Pet$/u,
-				},
+				{ Tester: /^ChatOther-ItemNose-Pet$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-ItemNose-Pet$/u },
 			],
 		},
 		{
 			Event: "NibbleEar",
 			Type: "Activity",
-			Matchers: [
-				{
-					Tester: /^ChatOther-ItemEars-Nibble$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-			],
+			Matchers: [{ Tester: /^ChatOther-ItemEars-Nibble$/u, Criteria: { TargetIsPlayer: true } }],
 		},
 		{
 			Event: "ButtTouch",
 			Type: "Activity",
 			Matchers: [
-				{
-					Tester: /^ChatOther-ItemButt-Grope$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-				{
-					Tester: /^ChatSelf-ItemButt-Grope$/u,
-				},
+				{ Tester: /^ChatOther-ItemButt-Grope$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-ItemButt-Grope$/u },
 			],
 		},
 		{
 			Event: "GentleTouch",
 			Type: "Activity",
 			Matchers: [
-				{
-					Tester: /^ChatOther-ItemVulvaPiercings-Caress$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-				{
-					Tester: /^ChatSelf-ItemVulvaPiercings-Caress$/u,
-				},
-				{
-					Tester: /^ChatOther-ItemVulva-Caress$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-				{
-					Tester: /^ChatSelf-ItemVulva-Caress$/u,
-				},
-				{
-					Tester: /^ChatOther-ItemNipples-Caress$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-				{
-					Tester: /^ChatSelf-ItemNipples-Caress$/u,
-				},
-				{
-					Tester: /^ChatOther-ItemBreast-Caress$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-				{
-					Tester: /^ChatSelf-ItemBreast-Caress$/u,
-				},
+				{ Tester: /^ChatOther-ItemVulvaPiercings-Caress$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-ItemVulvaPiercings-Caress$/u },
+				{ Tester: /^ChatOther-ItemVulva-Caress$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-ItemVulva-Caress$/u },
+				{ Tester: /^ChatOther-ItemNipples-Caress$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-ItemNipples-Caress$/u },
+				{ Tester: /^ChatOther-ItemBreast-Caress$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-ItemBreast-Caress$/u },
 			],
 		},
 		{
 			Event: "Intensedistress",
 			Type: "Activity",
 			Matchers: [
-				{
-					Tester: /^ChatOther-(ItemNipples|ItemEars)-Pinch$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-				{
-					Tester: /^ChatSelf-(ItemNipples|ItemEars)-Pinch$/u,
-				},
+				{ Tester: /^ChatOther-(ItemNipples|ItemEars)-Pinch$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-(ItemNipples|ItemEars)-Pinch$/u },
 			],
 		},
 		{
 			Event: "IntenseStimuli",
 			Type: "Activity",
 			Matchers: [
+				{ Tester: /^ChatOther-ItemNipples-(揉搓乳头|Pull)$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-ItemNipples-(揉搓乳头|Pull)$/u },
+				{ Tester: /^ChatOther-ItemVulvaPiercings-弹阴蒂$/u, Criteria: { TargetIsPlayer: true } },
+				{ Tester: /^ChatSelf-ItemVulvaPiercings-弹阴蒂$/u },
 				{
-					Tester: /^ChatOther-ItemNipples-(揉搓乳头|Pull)$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-                {
-					Tester: /^ChatSelf-ItemNipples-(揉搓乳头|Pull)$/u,
-				},
-				{
-					Tester: /^ChatOther-ItemVulvaPiercings-弹阴蒂$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-                {
-					Tester: /^ChatSelf-ItemVulvaPiercings-弹阴蒂$/u,
-				},
-                {
 					Tester: /^ChatOther-(ItemVulva|ItemVulvaPiercings|ItemNipples)-LSCG_Flick$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
+					Criteria: { TargetIsPlayer: true },
 				},
-                {
-					Tester: /^ChatSelf-(ItemVulva|ItemVulvaPiercings|ItemNipples)-LSCG_Flick$/u,
-				},
+				{ Tester: /^ChatSelf-(ItemVulva|ItemVulvaPiercings|ItemNipples)-LSCG_Flick$/u },
 			],
 		},
 		{
 			Event: "LickEar",
 			Type: "Activity",
-			Matchers: [
-				{
-					Tester: /^ChatOther-ItemEars-Lick$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-			],
+			Matchers: [{ Tester: /^ChatOther-ItemEars-Lick$/u, Criteria: { TargetIsPlayer: true } }],
 		},
 		{
 			Event: "HairBrush",
 			Type: "Activity",
-			Matchers: [
-				{
-					Tester: /^ChatOther-ItemHead-TakeCare$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-			],
+			Matchers: [{ Tester: /^ChatOther-ItemHead-TakeCare$/u, Criteria: { TargetIsPlayer: true } }],
 		},
 		{
 			Event: "HeadPet",
 			Type: "Activity",
-			Matchers: [
-				{
-					Tester: /^ChatOther-ItemHead-Pet$/u,
-					Criteria: {
-						TargetIsPlayer: true,
-					},
-				},
-			],
+			Matchers: [{ Tester: /^ChatOther-ItemHead-Pet$/u, Criteria: { TargetIsPlayer: true } }],
 		},
 	];
 
-	/** @type {(func: () => boolean) => Promise<void>} */
-	async function waitFor(func) {
+	/* ------------------------------------------------------------------ */
+	/*  HELPERS                                                            */
+	/* ------------------------------------------------------------------ */
+
+	/** Resolves true when func() is truthy, or false after timeoutMs. */
+	async function waitFor(func, timeoutMs = 60000) {
+		const start = Date.now();
 		while (!func()) {
+			if (Date.now() - start > timeoutMs) return false;
 			// eslint-disable-next-line no-await-in-loop
 			await sleep(100);
 		}
+		return true;
 	}
 
-	/** @type {(ms: number) => Promise<void>} */
 	function sleep(ms) {
 		// eslint-disable-next-line no-promise-executor-return
 		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
+
+	const hasWCE = () => typeof w.bce_initializeDefaultExpression !== "undefined";
+	const hasLCE = () => !!w.Liko?.LCE;
+
+	/** The WCE / FBC way: expose the config as globals. */
+	function installGlobals() {
+		w.bce_ArousalExpressionStages = ArousalExpressionStages;
+		w.bce_EventExpressions = EventExpressions;
+		w.bce_ActivityTriggers = ActivityTriggers;
+	}
+
+	/**
+	 * LCE adapter (best effort, UNVERIFIED against LCE's source).
+	 * LCE exposes a read-only getter Liko.LCE.expressionData. We try to merge our events into it
+	 * and log everything so it is obvious from the console what worked.
+	 */
+	function installLCE() {
+		const LCE = w.Liko.LCE;
+		console.log(`${LOG} LCE detected, version:`, LCE.version);
+
+		let table;
+		try {
+			table = LCE.expressionData;
+		} catch (e) {
+			console.warn(`${LOG} could not read LCE.expressionData:`, e);
+			return;
+		}
+		if (!table || typeof table !== "object") {
+			console.warn(`${LOG} LCE.expressionData is not an object:`, table);
+			return;
+		}
+
+		const before = Object.keys(table);
+		console.log(`${LOG} LCE.expressionData has ${before.length} entries, e.g.:`, before.slice(0, 10));
+
+		let merged = 0;
+		for (const [name, value] of Object.entries(EventExpressions)) {
+			try {
+				table[name] = typeof structuredClone === "function" ? structuredClone(value) : JSON.parse(JSON.stringify(value));
+				merged++;
+			} catch (e) {
+				console.warn(`${LOG} could not set "${name}" (table may be frozen/read-only):`, e);
+				break;
+			}
+		}
+		console.log(`${LOG} merged ${merged}/${Object.keys(EventExpressions).length} events into LCE.expressionData`);
+
+		// Diagnostics: use these in the console after triggering an emote/activity.
+		w.FBCE_Nabi_debug = () => ({
+			lceVersion: LCE.version,
+			engineStarted: LCE.isExpressionEngineStarted?.(),
+			faceComponents: LCE.getFaceComponents?.(),
+			hookFailures: LCE.getHookFailures?.(),
+			queue: LCE.getExpressionQueue?.(),
+			mergedKeys: Object.keys(EventExpressions).filter((k) => k in (LCE.expressionData || {})),
+		});
+		console.log(`${LOG} run FBCE_Nabi_debug() in the console for engine status`);
+	}
+
+	/* ------------------------------------------------------------------ */
+	/*  MAIN                                                               */
+	/* ------------------------------------------------------------------ */
+
+	const ready = await waitFor(() => !!w.Player?.Name && (hasWCE() || hasLCE()));
+	if (!ready) {
+		console.warn(
+			`${LOG} timed out. Player:`, !!w.Player?.Name,
+			"WCE/FBC hook:", hasWCE(),
+			"LCE:", hasLCE()
+		);
+		// Still expose the globals in case an extension loads late and reads them.
+		installGlobals();
+		return;
+	}
+
+	// Always keep the original behaviour so WCE / FBC keep working exactly as before.
+	installGlobals();
+
+	// LCE has its own expression engine and does not define the WCE hook.
+	if (hasLCE() && !hasWCE()) {
+		installLCE();
+	} else if (hasWCE()) {
+		console.log(`${LOG} WCE/FBC detected, globals installed.`);
 	}
 })();
