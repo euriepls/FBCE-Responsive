@@ -1089,17 +1089,42 @@
 		const before = Object.keys(table);
 		console.log(`${LOG} LCE.expressionData has ${before.length} entries, e.g.:`, before.slice(0, 10));
 
+		// LCE's table has 3 keys mirroring the bce_* globals. The top level is locked, so work on the inner objects.
+		const clone = (v) => (typeof structuredClone === "function" ? structuredClone(v) : v);
+		const info = (o) => (o ? { frozen: Object.isFrozen(o), extensible: Object.isExtensible(o) } : null);
+		console.log(`${LOG} inner state:`, {
+			EventExpressions: info(table.EventExpressions),
+			ActivityTriggers: info(table.ActivityTriggers),
+			ArousalExpressionStages: info(table.ArousalExpressionStages),
+			eventCount: table.EventExpressions ? Object.keys(table.EventExpressions).length : null,
+			triggerCount: Array.isArray(table.ActivityTriggers) ? table.ActivityTriggers.length : null,
+		});
+
+		// 1) EventExpressions: add/replace each event
 		let merged = 0;
-		for (const [name, value] of Object.entries(EventExpressions)) {
-			try {
-				table[name] = typeof structuredClone === "function" ? structuredClone(value) : JSON.parse(JSON.stringify(value));
-				merged++;
-			} catch (e) {
-				console.warn(`${LOG} could not set "${name}" (table may be frozen/read-only):`, e);
-				break;
+		if (table.EventExpressions && Object.isExtensible(table.EventExpressions)) {
+			for (const [name, value] of Object.entries(EventExpressions)) {
+				try { table.EventExpressions[name] = clone(value); merged++; } catch (e) { /* skip */ }
 			}
 		}
-		console.log(`${LOG} merged ${merged}/${Object.keys(EventExpressions).length} events into LCE.expressionData`);
+		console.log(`${LOG} EventExpressions merged ${merged}/${Object.keys(EventExpressions).length}`);
+
+		// 2) ActivityTriggers: replace the array contents in place
+		let triggersOk = false;
+		if (Array.isArray(table.ActivityTriggers) && !Object.isFrozen(table.ActivityTriggers)) {
+			try {
+				table.ActivityTriggers.splice(0, table.ActivityTriggers.length, ...ActivityTriggers);
+				triggersOk = true;
+			} catch (e) { console.warn(`${LOG} could not replace ActivityTriggers:`, e); }
+		}
+		console.log(`${LOG} ActivityTriggers replaced: ${triggersOk}`);
+
+		if (merged === 0 && !triggersOk) {
+			console.warn(
+				`${LOG} LCE's tables are locked. LCE most likely reads the bce_* globals once at engine start, ` +
+				`so this script must run BEFORE LCE's engine starts (i.e. before login), not after.`
+			);
+		}
 
 		// Diagnostics: use these in the console after triggering an emote/activity.
 		w.FBCE_Nabi_debug = () => ({
