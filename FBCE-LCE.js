@@ -704,7 +704,7 @@
 					{ Expression: "Daydream", Duration: 2500 },
 					{ Expression: "Surprised", Duration: 3500 },
 				],
-				Eyebrows: [{ Expression: "Soft", Duration: 9000 }],
+				Eyebrows: [{ Expression: null, Duration: 9000 }],
 				Blush: [{ ExpressionModifier: 1, Duration: 7500 }],
 			},
 		},
