@@ -139,7 +139,7 @@
 					{ Expression: "DroolLow", Duration: 8500, },
 				],
 				Eyebrows: [
-					{ Expression: "Soft", Duration: 18500 },
+					{ Expression: "Lowered", Duration: 18500 },
 				],
 			},
 		},
@@ -341,7 +341,7 @@
 					{ Expression: "DroolLow", Duration: -1, },
 				],
 				Eyebrows: [
-					{ Expression: "Soft", Duration: -1 },
+					{ Expression: "Lowered", Duration: -1 },
 				],
 			},
 		},
@@ -770,7 +770,7 @@
 					//{ Expression: "Daydream", Duration: 500 },
 					{ Expression: "Heart", Duration: -1 },
 				],
-				Eyebrows: [{ Expression: "Soft", Duration: -1 }],
+				Eyebrows: [{ Expression: "Lowered", Duration: -1 }],
 				Blush: [{ Expression: "VeryHigh", Duration: -1 },],
 			},
 		},
@@ -778,7 +778,7 @@
 			Type: "LickEar",
 			Duration: -1,
 			Expression: {
-				Mouth: [{ Expression: "LipBite", Duration: 9000 }],
+				Mouth: [{ Expression: "LipBite", Duration: 6000 }],
 				Eyes: [
 					{ Expression: "Closed", Duration: 2500 },
 					{ Expression: "Heart", Duration: -1 },
@@ -788,7 +788,7 @@
 					{ Expression: "Heart", Duration: -1 },
 				],
 				Eyebrows: [{ Expression: "Soft", Duration: -1 }],
-				Blush: [{ Expression: "VeryHigh", Duration: -1 },],
+				Blush: [{ Expression: "High", Duration: 18500 },],
 			},
 		},
 		HairBrush: {
