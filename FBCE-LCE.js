@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name FBCE Nabi ver 2.4 (4) (WCE + LCE)
+// @name FBCE Nabi ver 2.4 (WCE + LCE)
 // @namespace https://www.bondageprojects.com/
 // @version 0.2
 // @description Customize the expressions used by FBC / WCE, with an adapter for Liko's Club Extension (LCE)
